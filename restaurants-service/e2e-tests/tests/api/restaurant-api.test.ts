@@ -16,7 +16,7 @@ test.describe("Restaurant API", () => {
     });
   });
 
-  test("Create a restaurant", async () => {
+  test("✅ Create a restaurant", async () => {
     const res = await apiContext.post("/api/restaurants", {
       data: {
         name: "Test Bistro",
@@ -34,7 +34,7 @@ test.describe("Restaurant API", () => {
     restaurantId = data._id;
   });
 
-  test("Get all restaurants", async () => {
+  test("✅ Get all restaurants", async () => {
     const res = await apiContext.get("/api/restaurants");
 
     console.log("Final URL:", res.url());
@@ -46,7 +46,7 @@ test.describe("Restaurant API", () => {
     expect(Array.isArray(restaurants)).toBe(true);
   });
 
-  test("Get one restaurant by ID", async () => {
+  test("✅ Get one restaurant by ID", async () => {
     const res = await apiContext.get(`/api/restaurants/${restaurantId}`);
 
     console.log("Get One status:", res.status());
@@ -58,7 +58,7 @@ test.describe("Restaurant API", () => {
     expect(restaurant.name).toBe("Test Bistro");
   });
 
-  test("Update restaurant", async () => {
+  test("✅ Update restaurant", async () => {
     const res = await apiContext.put(`/api/restaurants/${restaurantId}`, {
       data: {
         name: "Updated Bistro",
@@ -75,7 +75,7 @@ test.describe("Restaurant API", () => {
     expect(updated.name).toBe("Updated Bistro");
   });
 
-  test("Delete restaurant", async () => {
+  test("✅ Delete restaurant", async () => {
     const res = await apiContext.delete(`/api/restaurants/${restaurantId}`);
 
     console.log("Delete status:", res.status());
@@ -86,7 +86,7 @@ test.describe("Restaurant API", () => {
 
   // 🔒 Unauthorized Access Tests
 
-  test("Fail to create restaurant without token", async () => {
+  test("❌ Fail to create restaurant without token", async () => {
     const unauthContext = await request.newContext({
       baseURL: "http://localhost:3001",
     });
@@ -102,7 +102,7 @@ test.describe("Restaurant API", () => {
     expect(res.status()).toBe(401); // Unauthorized
   });
 
-  test("Fail to update restaurant without token", async () => {
+  test("❌ Fail to update restaurant without token", async () => {
     const unauthContext = await request.newContext({
       baseURL: "http://localhost:3001",
     });
@@ -116,7 +116,7 @@ test.describe("Restaurant API", () => {
     expect(res.status()).toBe(401); // Unauthorized
   });
 
-  test("Fail to delete restaurant without token", async () => {
+  test("❌ Fail to delete restaurant without token", async () => {
     const unauthContext = await request.newContext({
       baseURL: "http://localhost:3001",
     });
@@ -125,5 +125,39 @@ test.describe("Restaurant API", () => {
     expect(res.status()).toBe(401); // Unauthorized
   });
 
-  
+  test("❌ Fail to create restaurant with missing fields", async () => {
+    const res = await apiContext.post("/api/restaurants", {
+      data: {
+        name: "", // missing address and location
+      },
+    });
+
+    expect(res.status()).toBe(500); // validation or server error
+  });
+
+  test("❌ Fail to create restaurant with empty body", async () => {
+    const res = await apiContext.post("/api/restaurants", {
+      data: {},
+    });
+
+    expect(res.status()).toBe(500); // validation or server error
+  });
+
+  test("❌ Fail to update restaurant with invalid ID", async () => {
+    const res = await apiContext.put("/api/restaurants/invalid-id", {
+      data: {
+        name: "Bad Update",
+      },
+    });
+
+    expect([400, 404, 500]).toContain(res.status()); // depends on implementation
+  });
+
+  test("❌ Delete a restaurant that doesn't exist", async () => {
+    const res = await apiContext.delete(
+      "/api/restaurants/64df12345678901234567890"
+    ); // Random ObjectId
+    expect(res.status()).toBe(404);
+  });
+
 });
