@@ -1,14 +1,14 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect, Page } from "@playwright/test";
 
 //static test configuration
 const testData = {
   admin: {
-    email: 'res2@gmail.com',
-    password: 'resadmin',
+    email: "res2@gmail.com",
+    password: "resadmin",
   },
-  baseUrl: 'http://localhost:5173',
-  loginUrl: '/login/restaurant',
-  dashboardUrl: '/restaurant-dash',
+  baseUrl: "http://localhost:5173",
+  loginUrl: "/login/restaurant",
+  dashboardUrl: "/restaurant-dash",
 };
 
 //page Object for the login page
@@ -17,7 +17,10 @@ class LoginPage {
 
   async navigate() {
     await this.page.goto(`${testData.baseUrl}${testData.loginUrl}`);
-    await this.page.waitForSelector('input[name="email"]', { state: 'visible', timeout: 5000 });
+    await this.page.waitForSelector('input[name="email"]', {
+      state: "visible",
+      timeout: 5000,
+    });
   }
 
   async fillCredentials(email: string, password: string) {
@@ -26,7 +29,7 @@ class LoginPage {
   }
 
   async submitForm() {
-    console.log('Clicking login button...');
+    console.log("Clicking login button...");
     await this.page.click('button:has-text("Login")');
   }
 
@@ -36,15 +39,15 @@ class LoginPage {
   }
 
   async captureLoginState() {
-    const alert = this.page.locator('.alert, .error-message').first();
+    const alert = this.page.locator(".alert, .error-message").first();
     if (await alert.isVisible()) {
-      console.log('ALERT MESSAGE:', await alert.textContent());
+      console.log("ALERT MESSAGE:", await alert.textContent());
     }
 
-    const token = await this.page.evaluate(() => localStorage.getItem('token'));
-    console.log('LocalStorage Token:', token);
+    const token = await this.page.evaluate(() => localStorage.getItem("token"));
+    console.log("LocalStorage Token:", token);
 
-    console.log('Current URL:', this.page.url());
+    console.log("Current URL:", this.page.url());
   }
 }
 
@@ -54,13 +57,18 @@ class RestaurantDashboardPage {
 
   async navigateToDashboard() {
     await this.page.goto(`${testData.baseUrl}${testData.dashboardUrl}`);
-    await this.page.waitForSelector('.text-3xl.font-bold', { state: 'visible', timeout: 10000 });
+    await this.page.waitForSelector(".text-3xl.font-bold", {
+      state: "visible",
+      timeout: 10000,
+    });
   }
 
   async getStoreStatus() {
-    const statusElement = this.page.locator('[class*="inline-block font-semibold px-4 py-2 rounded-full"]');
+    const statusElement = this.page.locator(
+      '[class*="inline-block font-semibold px-4 py-2 rounded-full"]'
+    );
     const statusText = await statusElement.textContent();
-    return statusText?.includes('Open') ? 'open' : 'closed';
+    return statusText?.includes("Open") ? "open" : "closed";
   }
 
   async toggleStoreStatus() {
@@ -70,17 +78,17 @@ class RestaurantDashboardPage {
   }
 
   async verifyStatusChangeNotification(expectedStatus: string) {
-    const notification = this.page.locator('.swal2-title');
-    await expect(notification).toHaveText('Success!');
+    const notification = this.page.locator(".swal2-title");
+    await expect(notification).toHaveText("Success!");
 
-    const content = this.page.locator('.swal2-content');
+    const content = this.page.locator(".swal2-content");
     await expect(content).toContainText(`Store is now ${expectedStatus}.`);
 
-    await this.page.locator('.swal2-confirm').click(); //dismiss notification
+    await this.page.locator(".swal2-confirm").click(); //dismiss notification
   }
 }
 
-test.describe('Restaurant Admin Tests', () => {
+test.describe("Restaurant Admin Tests", () => {
   let loginPage: LoginPage;
   let dashboardPage: RestaurantDashboardPage;
 
@@ -89,7 +97,7 @@ test.describe('Restaurant Admin Tests', () => {
     dashboardPage = new RestaurantDashboardPage(page);
   });
 
-  test('Successful login flow', async ({ page }) => {
+  test("Successful login flow", async ({ page }) => {
     await page.context().tracing.start({ screenshots: true, snapshots: true });
 
     try {
@@ -99,34 +107,34 @@ test.describe('Restaurant Admin Tests', () => {
       //wait for redirect to dashboard or an error alert
       await Promise.race([
         page.waitForURL(`**${testData.dashboardUrl}`, { timeout: 15000 }),
-        page.waitForSelector('.alert, .error', { timeout: 5000 }),
+        page.waitForSelector(".alert, .error", { timeout: 5000 }),
       ]);
 
       const currentUrl = page.url();
 
       if (currentUrl.includes(testData.dashboardUrl)) {
-        console.log('Successfully navigated to dashboard:', currentUrl);
+        console.log("Successfully navigated to dashboard:", currentUrl);
       } else {
-        const error = page.locator('.alert, .error').first();
+        const error = page.locator(".alert, .error").first();
         if (await error.isVisible()) {
-          console.log('Error after login:', await error.textContent());
+          console.log("Error after login:", await error.textContent());
         } else {
-          console.log('Login failed, but no visible error message.');
+          console.log("Login failed, but no visible error message.");
         }
         await loginPage.captureLoginState();
       }
 
       expect(currentUrl).toContain(testData.dashboardUrl);
     } catch (err) {
-      console.error('Test failed:', err);
+      console.error("Test failed:", err);
       await loginPage.captureLoginState();
       throw err;
     } finally {
-      await page.context().tracing.stop({ path: 'trace.zip' });
+      await page.context().tracing.stop({ path: "trace.zip" });
     }
   });
 
-  test.describe('Restaurant Store Status Toggle', () => {
+  test.describe("Restaurant Store Status Toggle", () => {
     test.beforeEach(async ({ page }) => {
       //ensure user is logged in and dashboard is loaded
       await loginPage.navigate();
@@ -135,22 +143,22 @@ test.describe('Restaurant Admin Tests', () => {
       await dashboardPage.navigateToDashboard();
     });
 
-    test('Toggle store status from open to closed', async ({ page }) => {
+    test("Toggle store status from open to closed", async ({ page }) => {
       const initialStatus = await dashboardPage.getStoreStatus();
 
       //proceed only if store is open
-      if (initialStatus === 'open') {
+      if (initialStatus === "open") {
         await dashboardPage.toggleStoreStatus();
 
         const newStatus = await dashboardPage.getStoreStatus();
-        expect(newStatus).toBe('closed');
+        expect(newStatus).toBe("closed");
 
-        await dashboardPage.verifyStatusChangeNotification('Closed');
+        await dashboardPage.verifyStatusChangeNotification("Closed");
 
         const toggle = page.locator('input[type="checkbox"]').first();
         await expect(toggle).not.toBeChecked();
       } else {
-        console.log('Store was already closed.');
+        console.log("Store was already closed.");
       }
     });
   });

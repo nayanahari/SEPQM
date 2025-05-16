@@ -1,11 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('Delete restaurant with SweetAlert confirmation', async ({ page }) => {
+test("Delete restaurant with SweetAlert confirmation", async ({ page }) => {
   const config = {
-    baseUrl: 'http://localhost:5173',
-    loginUrl: '/login/restaurant',
-    adminEmail: 'res2@gmail.com',
-    adminPassword: 'resadmin'
+    baseUrl: "http://localhost:5173",
+    loginUrl: "/login/restaurant",
+    adminEmail: "res2@gmail.com",
+    adminPassword: "resadmin",
   };
 
   //navigate to login page and perform login
@@ -19,16 +19,20 @@ test('Delete restaurant with SweetAlert confirmation', async ({ page }) => {
   const restaurantName = page.locator('text="Test Bistro"').first();
   await expect(restaurantName).toBeVisible();
 
-
   const deleteButton = page.locator('button:has-text("Delete")');
   await deleteButton.click();
 
   //wait for SweetAlert confirmation modal to appear
-  await page.waitForSelector('.swal2-modal', { state: 'visible', timeout: 10000 });
+  await page.waitForSelector(".swal2-modal", {
+    state: "visible",
+    timeout: 10000,
+  });
 
   //verify modal
-  const swalModal = page.locator('.swal2-modal');
+  const swalModal = page.locator(".swal2-modal");
   await expect(swalModal).toBeVisible();
-  await expect(swalModal.locator('.swal2-title')).toHaveText('Are you sure?');
-  await expect(swalModal.locator('.swal2-html-container')).toContainText('delete your restaurant');
+  await expect(swalModal.locator(".swal2-title")).toHaveText("Are you sure?");
+  await expect(swalModal.locator(".swal2-html-container")).toContainText(
+    "delete your restaurant"
+  );
 });

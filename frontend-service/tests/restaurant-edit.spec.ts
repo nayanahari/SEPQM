@@ -1,11 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test('Restaurant edit form - Cancel button should discard changes', async ({ page }) => {
-
+test("Restaurant edit form - Cancel button should discard changes", async ({
+  page,
+}) => {
   //navigate to login and perform login
-  await page.goto('http://localhost:5173/login/restaurant');
-  await page.fill('input[name="email"]', 'res2@gmail.com');
-  await page.fill('input[name="password"]', 'resadmin');
+  await page.goto("http://localhost:5173/login/restaurant");
+  await page.fill('input[name="email"]', "res2@gmail.com");
+  await page.fill('input[name="password"]', "resadmin");
   await page.click('button:has-text("Login")');
   await page.waitForURL(/\/restaurant-dash/);
 
@@ -31,9 +32,9 @@ test('Restaurant edit form - Cancel button should discard changes', async ({ pag
   const initialLocation = await locationInput.inputValue();
 
   //modify input fields (but do not save)
-  await nameInput.fill('Temporary Change');
-  await addressInput.fill('Temp Address');
-  await locationInput.fill('Temp City');
+  await nameInput.fill("Temporary Change");
+  await addressInput.fill("Temp Address");
+  await locationInput.fill("Temp City");
 
   //click Cancel and verify navigation back to dashboard
   await page.locator('button:has-text("Cancel")').click();
