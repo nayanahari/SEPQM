@@ -1,40 +1,40 @@
-import { PlaywrightTestConfig, devices } from '@playwright/test';
+import { PlaywrightTestConfig, devices } from "@playwright/test";
 
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+  testDir: "./tests",
   timeout: 30 * 1000,
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  reporter: [["html", { open: "always" }]],
   use: {
     actionTimeout: 0,
-    baseURL: 'http://localhost:5173',
-    trace: 'on-first-retry',
-    video: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    baseURL: "http://localhost:5173",
+    trace: "on-first-retry",
+    video: "on-first-retry",
+    screenshot: "only-on-failure",
   },
   projects: [
     {
-      name: 'chromium',
+      name: "chromium",
       use: {
-        ...devices['Desktop Chrome'],
+        ...devices["Desktop Chrome"],
       },
     },
     {
-      name: 'firefox',
+      name: "firefox",
       use: {
-        ...devices['Desktop Firefox'],
+        ...devices["Desktop Firefox"],
       },
     },
     {
-      name: 'webkit',
+      name: "webkit",
       use: {
-        ...devices['Desktop Safari'],
+        ...devices["Desktop Safari"],
       },
     },
   ],
